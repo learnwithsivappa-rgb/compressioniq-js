@@ -1,3 +1,5 @@
+import { Buffer } from "node:buffer";
+
 import type {
   CompressionOptions,
   CompressionAcceptedResponse
@@ -18,22 +20,36 @@ export class CompressionResource {
   ) {}
 
   async create(
-    file: Blob,
+    file: Blob | Buffer | Uint8Array,
     options: CompressionOptions = {}
   ): Promise<CompressionAcceptedResponse> {
 
-    validateImageFile(file);
+    let imageBlob: Blob;
+
+    if (file instanceof Blob) {
+      imageBlob = file;
+    } else if (
+      Buffer.isBuffer(file) ||
+      file instanceof Uint8Array
+    ) {
+      const copy = Uint8Array.from(file);
+
+      imageBlob = new Blob(
+        [copy.buffer as ArrayBuffer]
+      );
+    } else {
+      throw new Error("Unsupported image input.");
+    }
+
+    validateImageFile(imageBlob);
     validateCompressionOptions(options);
 
     const formData = new FormData();
 
-    const filename =
-      options.filename ?? "image.bin";
-
     formData.append(
       "file",
-      file,
-      filename
+      imageBlob,
+      options.filename ?? "image.bin"
     );
 
     if (options.format !== undefined) {
@@ -63,4 +79,4 @@ export class CompressionResource {
       }
     );
   }
-                      }
+}
