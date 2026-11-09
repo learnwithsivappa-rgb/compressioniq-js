@@ -19,10 +19,20 @@ import {
   CompressionResource
 } from "./resources/compression.js";
 
+import {
+  JobsResource
+} from "./resources/jobs.js";
+
+import {
+  FilesResource
+} from "./resources/files.js";
+
 export class CompressionIQ {
   public readonly compression: CompressionResource;
 
-  private readonly http: HttpClient;
+  public readonly jobs: JobsResource;
+
+  public readonly files: FilesResource;
 
   constructor(config: CompressionIQConfig) {
     validateConfig(config);
@@ -33,14 +43,16 @@ export class CompressionIQ {
     const timeout =
       config.timeout ?? DEFAULT_TIMEOUT;
 
-    this.http = new HttpClient(
+    const http = new HttpClient(
       config.apiKey,
       baseURL,
       timeout
     );
 
-    this.compression = new CompressionResource(
-      this.http
-    );
+    this.compression = new CompressionResource(http);
+
+    this.jobs = new JobsResource(http);
+
+    this.files = new FilesResource(http);
   }
 }
