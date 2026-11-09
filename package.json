@@ -1,0 +1,53 @@
+{
+  "name": "compressioniq-js-sdk",
+  "version": "0.1.0",
+  "description": "Official JavaScript and TypeScript SDK for CompressionIQ Image Compression API",
+  "author": "Sivappa Boya",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE.md"
+  ],
+
+  "engines": {
+    "node": ">=20.0.0"
+  },
+
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  },
+
+  "keywords": [
+    "compressioniq",
+    "image-compression",
+    "image-optimization",
+    "typescript",
+    "javascript",
+    "sdk",
+    "webp",
+    "avif"
+  ]
+}
