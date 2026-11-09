@@ -1,6 +1,12 @@
+import { Buffer } from "node:buffer";
+
 import {
   HttpClient
 } from "../utils/http.js";
+
+import {
+  ValidationError
+} from "../errors.js";
 
 export class FilesResource {
   constructor(
@@ -12,11 +18,20 @@ export class FilesResource {
   ): Promise<Uint8Array> {
 
     if (!filename || !filename.trim()) {
-      throw new Error("Filename is required.");
+      throw new ValidationError("Filename is required.");
     }
 
     return this.http.requestBinary(
       `/api/v1/files/${encodeURIComponent(filename)}`
     );
+  }
+
+  async downloadToBuffer(
+    filename: string
+  ): Promise<Buffer> {
+
+    const data = await this.download(filename);
+
+    return Buffer.from(data);
   }
 }
