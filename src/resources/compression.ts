@@ -24,6 +24,7 @@ export class CompressionResource {
     options: CompressionOptions = {}
   ): Promise<CompressionAcceptedResponse> {
 
+    // 1. Normalize image input
     let imageBlob: Blob;
 
     if (file instanceof Blob) {
@@ -34,16 +35,45 @@ export class CompressionResource {
     ) {
       const copy = Uint8Array.from(file);
 
-      imageBlob = new Blob(
-        [copy.buffer as ArrayBuffer]
-      );
+      imageBlob = new Blob([copy.buffer]);
     } else {
       throw new Error("Unsupported image input.");
     }
 
+    // 2. Validate image and options
     validateImageFile(imageBlob);
     validateCompressionOptions(options);
 
+    // 3. Build URL query parameters
+    const query = new URLSearchParams();
+
+    if (options.format !== undefined) {
+      query.set("format", options.format);
+    }
+
+    if (options.mode !== undefined) {
+      query.set("mode", options.mode);
+    }
+
+    if (options.resize !== undefined) {
+      query.set("resize", options.resize);
+    }
+
+    if (options.customWidth !== undefined) {
+      query.set(
+        "custom_width",
+        String(options.customWidth)
+      );
+    }
+
+    // 4. Construct endpoint
+    const queryString = query.toString();
+
+    const endpoint = queryString
+      ? `/api/v1/compress?${queryString}`
+      : "/api/v1/compress";
+
+    // 5. Multipart body contains ONLY the image
     const formData = new FormData();
 
     formData.append(
@@ -52,27 +82,9 @@ export class CompressionResource {
       options.filename ?? "image.bin"
     );
 
-    if (options.format !== undefined) {
-      formData.append("format", options.format);
-    }
-
-    if (options.mode !== undefined) {
-      formData.append("mode", options.mode);
-    }
-
-    if (options.resize !== undefined) {
-      formData.append("resize", options.resize);
-    }
-
-    if (options.customWidth !== undefined) {
-      formData.append(
-        "custom_width",
-        String(options.customWidth)
-      );
-    }
-
+    // 6. Submit compression request
     return this.http.request<CompressionAcceptedResponse>(
-      "/api/v1/compress",
+      endpoint,
       {
         method: "POST",
         body: formData
